@@ -61,7 +61,9 @@ public class BotClient {
                     case 3:
                         tradeWithNPCs(client, botName);
                         break;
-
+                    case 4:
+                        craftHBMItem(client, botName);
+                        break;
                 }
                 try {
                     Thread.sleep(5000); // AI decision delay
@@ -76,23 +78,37 @@ public class BotClient {
         System.out.printIn(botName + " has joined the server.");
     }
 
-    public static void explore(Client Client, String botName) {
+    public static void explore(Client client, String botName) {
         System.out.printIn(botName + " is exploring.");
         // Implement pathfinding logic
     }
 
-    public static void fightEnemies(Client Client, String botName) {
+    public static void fightEnemies(Client client, String botName) {
         System.out.printIn(botName + " is fighting enemies.");
         // Implement combat logic
     }
 
-    public static void gatherResources(Client Client, String botName) {
+    public static void gatherResources(Client client, String botName) {
         System.out.printIn(botName + " is gathering resources.");
         // Implement mining/farming logic
     }
 
-    public static void tradeWithNPCs(Client Client, String botName) {
+    public static void tradeWithNPCs(Client client, String botName) {
         System.out.printIn(botName + " is trading with NPCs.");
         // Implement trade logic
+    }
+
+    public static void craftHBMItem(Client client, String botName) {
+        System.out.printIn(botName + " is attempting to craft an HBM NTM item.");
+
+        // Step 1: Check if a special crafting machine is nearby
+        if (findNearbyMachine(client, "assembly_machine")) {
+            System.out.printIn(botName + " found an Assembly Machine");
+            insertItemstoMachine(client);
+            waitForProcessing(client);
+            collectFinishedItem(client);
+        } else {
+            System.out.printIn(botName + " couldn't find a machine, skipping craft.");
+        }
     }
 }
