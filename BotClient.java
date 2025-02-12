@@ -1,3 +1,6 @@
+// MCBotClientAI ALPHA VERSION 1.5.2
+// Designed by DerKaiser2023
+// Created Feb 11 2025
 import com.github.steveice10.mc.auth.data.GameProfile;
 import com.github.steveice10.mc.auth.service.SessionService;
 import com.github.steveice10.mc.protocol.MinecraftProtocol;
@@ -8,6 +11,10 @@ import com.github.steveice10.packetlib.event.session.PacketReceivedEvent;
 import com.github.steveice10.packetlib.event.session.SessionAdapter;
 import com.github.steveice10.packetlib.tcp.TcpClientSession;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.util.*;
 import java.util.Random;
 
@@ -23,8 +30,17 @@ public class BotClient {
     }
 
     public static void startBot(String botName, List<Client> bots) {
+        String[] serverInfo = findServerOrLAN();
+        if (serverInfo == null) {
+            System.out.println(botName + " could not find a server or LAN world. Exiting...");
+            return;
+        }
+        
+        String serverIP = serverInfo[0];
+        int serverPort = Integer.parseInt(serverInfo[1]);
+        
         MinecraftProtocol protocol = new MinecraftProtocol(botName);
-        Client client = new Client("localhost", 25565, protocol, new TcpClientSession.Factory());
+        Client client = new Client(serverIP, serverPort, protocol, new TcpClientSession.Factory());
         bots.add(client);
 
         client.getSession().addListener(new SessionAdapter() {
@@ -38,283 +54,68 @@ public class BotClient {
             }
         });
 
-        // AI decision-making loop
         new Thread(() -> {
             Random rand = new Random();
             while (true) {
                 int decision = rand.nextInt(7);
                 switch (decision) {
-                    case 0:
-                        explore(client, botName);
-                        break;
-                    case 1:
-                        fightEnemies(client, botName);
-                        break;
-                    case 2:
-                        gatherResources(client, botName);
-                        break;
-                    case 3:
-                        tradeWithNPCs(client, botName);
-                        break;
-                    case 4:
-                        craftHBMItem(client, botName);
-                        break;
-                    case 5:
-                        interactWithMods(client, botName);
-                        break;
-                    case 6:
-                        handleGalacticraft(client, botName);
-                        break;
+                    case 0 -> explore(client, botName);
+                    case 1 -> fightEnemies(client, botName);
+                    case 2 -> gatherResources(client, botName);
+                    case 3 -> tradeWithNPCs(client, botName);
+                    case 4 -> craftHBMItem(client, botName);
+                    case 5 -> interactWithMods(client, botName);
+                    case 6 -> handleGalacticraft(client, botName);
                 }
                 try {
-                    Thread.sleep(5000); // AI decision delay
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
 
-        // Connect bot to the server
         client.getSession().connect();
-        System.out.println(botName + " has joined the server.");
+        System.out.println(botName + " has joined the server at " + serverIP + ":" + serverPort);
     }
 
-    public static void explore(Client client, String botName) {
-        System.out.println(botName + " is exploring.");
-        // Implement pathfinding logic
-    }
-
-    public static void fightEnemies(Client client, String botName) {
-        System.out.println(botName + " is fighting enemies.");
-        // Implement combat logic
-    }
-
-    public static void gatherResources(Client client, String botName) {
-        System.out.println(botName + " is gathering resources.");
-        // Implement mining/farming logic
-    }
-
-    public static void tradeWithNPCs(Client client, String botName) {
-        System.out.println(botName + " is trading with NPCs.");
-        // Implement trade logic
-    }
-
-    public static void craftHBMItem(Client client, String botName) {
-        System.out.println(botName + " is attempting to craft an HBM NTM item.");
-    
-        // Step 1: AI selects an item it wants to craft (e.g., Plutonium Core)
-        String itemToCraft = selectHBMItem();
+    private static String[] findServerOrLAN() {
+        String serverIP = "localhost";
+        int serverPort = 25565;
         
-        // Step 2: Query JEI for available recipes
-        String recipe = queryJEIForRecipe(itemToCraft);
-        if (recipe == null) {
-            System.out.println(botName + " could not find a recipe in JEI for " + itemToCraft);
-            return;
+        if (isServerOnline(serverIP, serverPort)) {
+            return new String[]{serverIP, String.valueOf(serverPort)};
+        } else {
+            return findLANWorld();
         }
-        
-        // Step 3: Check if a special crafting machine is required (e.g., Assembly Machine)
-        String requiredMachine = getRequiredMachine(recipe);
-        if (requiredMachine != null && !findNearbyMachine(client, requiredMachine)) {
-            System.out.println(botName + " couldn't find " + requiredMachine + ", searching...");
-            
-            if (!searchForMachine(client, requiredMachine)) {
-                System.out.println(botName + " failed to locate the machine, skipping craft.");
-                return;
-            }
-        }
-    
-        // Step 4: Gather necessary materials
-        if (!gatherMaterialsForRecipe(recipe)) {
-            System.out.println(botName + " is missing materials for " + itemToCraft + ".");
-            return;
-        }
-    
-        // Step 5: Insert materials into the correct machine
-        insertItemsIntoMachine(client, requiredMachine);
-        waitForProcessing(client, requiredMachine);
-        
-        // Step 6: Collect finished item
-        collectFinishedItem(client, itemToCraft);
-        System.out.println(botName + " has successfully crafted " + itemToCraft + ".");
     }
-    
-    // AI decides which HBM item to craft based on need
-    private static String selectHBMItem() {
-        List<String> hbmItems = Arrays.asList("Plutonium_Core", "Uranium_Fuel", "Nuclear_Bomb", "Fusion_Core");
-        return hbmItems.get(new Random().nextInt(hbmItems.size()));
-    }
-    
-    // Searches for a required HBM crafting machine nearby
-    private static boolean searchForMachine(Client client, String machineName) {
-        System.out.println("Searching for " + machineName + "...");
-        // Implement AI pathfinding to locate the machine
-        return true; // Simulating success for now
-    }
-    
-    // Simulate inserting items into the correct machine
-    private static void insertItemsIntoMachine(Client client, String machineName) {
-        System.out.println("Inserting items into " + machineName + "...");
-        // Implement machine interaction logic
-    }
-    
-    // Simulate waiting for crafting to finish
-    private static void waitForProcessing(Client client, String machineName) {
-        System.out.println("Processing items in " + machineName + "...");
+
+    private static boolean isServerOnline(String ip, int port) {
         try {
-            Thread.sleep(3000); // Simulate crafting delay
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            InetAddress server = InetAddress.getByName(ip);
+            return server.isReachable(2000);
+        } catch (IOException e) {
+            return false;
         }
-    }
-    
-    // Simulate collecting finished item
-    private static void collectFinishedItem(Client client, String itemName) {
-        System.out.println("Collecting " + itemName + "...");
-        // Implement inventory interaction logic
     }
 
-    public static void interactWithMods(Client client, String botName) {
-        System.out.println(botName + " is interacting with modded mechanics.");
-        // Implement interaction logic for various mods
-    }
+    private static String[] findLANWorld() {
+        try (MulticastSocket socket = new MulticastSocket(4445)) {
+            socket.setSoTimeout(5000);
+            socket.joinGroup(InetAddress.getByName("224.0.2.60"));
+            byte[] buffer = new byte[1024];
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            socket.receive(packet);
 
-    public static void handleGalacticraft(Client client, String botName) {
-        System.out.println(botName + " is preparing for space exploration.");
-    
-        // Step 1: AI selects a goal (craft rocket, fuel, or travel)
-        String spaceTask = selectGalacticraftTask();
-        
-        switch (spaceTask) {
-            case "craft_rocket":
-                craftRocket(client, botName);
-                break;
-            case "fuel_rocket":
-                fuelRocket(client, botName);
-                break;
-            case "launch":
-                launchRocket(client, botName);
-                break;
-            default:
-                System.out.println(botName + " has no space task right now.");
-        }
-    }
-    
-    // AI randomly selects a Galacticraft-related task
-    private static String selectGalacticraftTask() {
-        List<String> tasks = Arrays.asList("craft_rocket", "fuel_rocket", "launch");
-        return tasks.get(new Random().nextInt(tasks.size()));
-    }
-    
-    // AI crafts a rocket using NASA Workbench
-    private static void craftRocket(Client client, String botName) {
-        System.out.println(botName + " is attempting to craft a Tier 1 Rocket.");
-        
-        // Step 1: Query JEI for the Tier 1 Rocket recipe
-        String recipe = queryJEIForRecipe("rocket_tier_1");
-        if (recipe == null) {
-            System.out.println(botName + " could not find the Tier 1 Rocket recipe in JEI.");
-            return;
-        }
-        
-        // Step 2: Check if a NASA Workbench is nearby
-        if (!findNearbyMachine(client, "NASA_Workbench")) {
-            System.out.println(botName + " couldn't find a NASA Workbench, searching...");
-            if (!searchForMachine(client, "NASA_Workbench")) {
-                System.out.println(botName + " failed to locate the machine, skipping craft.");
-                return;
+            String message = new String(packet.getData(), 0, packet.getLength());
+            if (message.contains("[MOTD]") && message.contains("[AD]")) {
+                String ip = packet.getAddress().getHostAddress();
+                String port = message.split(":")[1].trim();
+                return new String[]{ip, port};
             }
+        } catch (IOException e) {
+            System.out.println("No LAN worlds detected.");
         }
-    
-        // Step 3: Gather necessary materials
-        if (!gatherMaterialsForRecipe(recipe)) {
-            System.out.println(botName + " is missing materials for the rocket.");
-            return;
-        }
-    
-        // Step 4: Insert materials and craft the rocket
-        insertItemsIntoMachine(client, "NASA_Workbench");
-        waitForProcessing(client, "NASA_Workbench");
-        
-        // Step 5: Collect the rocket
-        collectFinishedItem(client, "Tier_1_Rocket");
-        System.out.println(botName + " has successfully crafted a Tier 1 Rocket.");
+        return null;
     }
-    
-    // AI fuels the rocket using a Fuel Loader
-    private static void fuelRocket(Client client, String botName) {
-        System.out.println(botName + " is attempting to fuel the rocket.");
-    
-        // Step 1: Check if a Fuel Loader is nearby
-        if (!findNearbyMachine(client, "Fuel_Loader")) {
-            System.out.println(botName + " couldn't find a Fuel Loader, searching...");
-            if (!searchForMachine(client, "Fuel_Loader")) {
-                System.out.println(botName + " failed to locate a Fuel Loader, skipping fuel process.");
-                return;
-            }
-        }
-    
-        // Step 2: Ensure AI has fuel
-        if (!hasItemInInventory("Rocket_Fuel")) {
-            System.out.println(botName + " has no fuel. Searching for more...");
-            if (!gatherMaterialsForRecipe("Rocket_Fuel")) {
-                System.out.println(botName + " couldn't find fuel, aborting.");
-                return;
-            }
-        }
-    
-        // Step 3: Insert fuel into the Fuel Loader
-        insertItemsIntoMachine(client, "Fuel_Loader");
-        waitForProcessing(client, "Fuel_Loader");
-    
-        System.out.println(botName + " has successfully fueled the rocket.");
-    }
-    
-    // AI launches into space
-    private static void launchRocket(Client client, String botName) {
-        System.out.println(botName + " is preparing for launch.");
-    
-        // Step 1: Ensure AI has a rocket
-        if (!hasItemInInventory("Tier_1_Rocket")) {
-            System.out.println(botName + " has no rocket, crafting one first...");
-            craftRocket(client, botName);
-        }
-    
-        // Step 2: Check for oxygen gear
-        if (!hasItemInInventory("Oxygen_Gear") || !hasItemInInventory("Oxygen_Tank")) {
-            System.out.println(botName + " has no oxygen gear. Searching...");
-            if (!gatherMaterialsForRecipe("Oxygen_Gear") || !gatherMaterialsForRecipe("Oxygen_Tank")) {
-                System.out.println(botName + " couldn't find oxygen gear, launch aborted.");
-                return;
-            }
-        }
-    
-        // Step 3: Detect launchpad and board rocket
-        if (!findNearbyMachine(client, "Rocket_Launchpad")) {
-            System.out.println(botName + " couldn't find a launchpad, searching...");
-            if (!searchForMachine(client, "Rocket_Launchpad")) {
-                System.out.println(botName + " failed to locate a launchpad, aborting launch.");
-                return;
-            }
-        }
-    
-        // Step 4: Simulate launch sequence
-        System.out.println(botName + " is boarding the rocket.");
-        waitForProcessing(client, "Rocket_Launchpad");
-        System.out.println(botName + " is launching into space!");
-    
-        // Step 5: Select a destination
-        selectSpaceDestination(client, botName);
-    }
-    
-    // AI selects a space destination dynamically
-    private static void selectSpaceDestination(Client client, String botName) {
-        List<String> planets = Arrays.asList("Moon", "Mars", "Asteroids", "Venus");
-        String destination = planets.get(new Random().nextInt(planets.size()));
-    
-        System.out.println(botName + " is navigating to " + destination + ".");
-        
-        // Simulate AI selecting the planet in the GUI
-        waitForProcessing(client, "Space_Travel");
-        System.out.println(botName + " has arrived on " + destination + ".");
-    }    
 }
