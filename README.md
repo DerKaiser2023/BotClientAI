@@ -14,7 +14,7 @@ This project is an autonomous AI bot for Minecraft 1.7.10, utilizing **MCProtoco
 
 ## Requirements
 - **Minecraft Server 1.7.10** (Vanilla or Modded, But it can support LAN play)
-- **Java 8 or higher
+- **Java 8 or higher**
 - **MCProtocolLib**
 
 ## Installation
