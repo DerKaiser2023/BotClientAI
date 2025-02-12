@@ -26,7 +26,7 @@ This project is an autonomous AI bot for Minecraft 1.7.10, utilizing **MCProtoco
     ```
 2. **Set up dependencies:**
    - Download **MCProtocolLib** and add it to the project.
-   - Ensure your Minecraft server is running on **localhost:25565**.
+   - Ensure your Minecraft server or LAN world is running on **localhost:25565**.
 3. **Compile and Run:**
    ```sh
    javac BotClient.java
