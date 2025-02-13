@@ -1,7 +1,7 @@
 # BotClient AI for Minecraft 1.7.10
 
 ## Overview
-This project is an autonomous AI bot for Minecraft 1.7.10, utilizing **MCProtocolLib** to interact with the game as a real player. The AI makes dynamic decisions based on its environment, allowing it to explore, fight, gather resources, trade with NPCs, and establish independent societies.
+This project is an autonomous AI bot for Minecraft 1.7.10, utilizing **MCProtocolLib** to interact with the game as a real player. The AI makes dynamic decisions based on its environment, allowing it to explore, fight, gather resources, trade with NPCs, and establish independent societies. It now features **strategic decision-making** for HBM Nuclear Tech Mod, ensuring responsible nuclear advancements.
 
 ## Features
 - **Fully Autonomous AI**: The bot decides its actions based on prioritized needs.
@@ -12,8 +12,11 @@ This project is an autonomous AI bot for Minecraft 1.7.10, utilizing **MCProtoco
   - **Resource Gathering**: Mines, farms, and collects materials.
   - **Trading**: Interacts with NPCs and vending systems.
   - **Infrastructure Building**: Constructs bases and settlements for long-term survival.
-  - **Technological Advancement**: Determines when to progress into HBM mechanics, including nuclear power and weaponry.
+  - **Technological Advancement**: Determines when to progress into HBM mechanics, ensuring safe nuclear technology adoption.
   - **Faction Formation**: Ensures AI balance to establish separate societies.
+  - **Strategic HBM Integration**: AI evaluates resources, infrastructure, and energy before using nuclear tech.
+  - **Missile Development & Warfare**: AI assesses threats and can develop missile defenses or nuclear weapons if necessary.
+  - **Safe Nuclear Power & Resource Processing**: Ensures stable reactors, avoids radiation leaks, and establishes power grids before advancing.
 
 ## Requirements
 - **Minecraft Server 1.7.10** (Vanilla or Modded, But it can support LAN play)
@@ -47,6 +50,8 @@ This project is an autonomous AI bot for Minecraft 1.7.10, utilizing **MCProtoco
   - `tradeWithNPCs()`
   - `buildInfrastructure()`
   - `advanceToHBM()`
+  - `developMissiles()`
+  - `manageNuclearPower()`
 
 ## Future Enhancements
 - Pathfinding for smarter exploration.
