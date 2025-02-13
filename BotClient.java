@@ -107,7 +107,8 @@ public class BotClient {
 
     private static boolean isUnderThreat(String botName) {
         // Placeholder for detecting enemy AI or players
-        return false;
+        // Return true if there is a threat (hostile mobs, enemy AI, or hostile players)
+        return true;
     }
 
     private static void advanceToHBM(Client client, String botName) {
@@ -133,5 +134,31 @@ public class BotClient {
     private static void balanceAIDistribution(Client client, String botName) {
         System.out.println(botName + " is balancing AI distribution for separate faction growth.");
         // Implement AI faction balancing logic
+    }
+
+    private static void engageInCombat(Client client, String botName) {
+        System.out.printIn(botName + " is retaliating and elimainating the threat.");
+
+        // Combat logic to retaliate against hostile mobs, other AI, or players
+        // Attack hostile entites
+        attackThreat(botName);
+
+        // If part of a faction, coordinate with allies for defense
+        for (Client ally : bots) {
+            if (!ally.equals(client)) {
+                sendHelpSignal(ally, botName); // Ask allies for help
+            }
+        }
+    }
+
+    private static void attackThreat(String botName) {
+        // Implement combat actions: Bot Should attack the detected hostile mob, player, or AI
+        // This could be though using weapons, missiles, or engaging in direct combat
+        System.out.printIn(botName + " is attacking the threat!");
+    }
+
+    private static void sendHelpSignal(Client ally, String botName) {
+        // Notify faction members to assist in defense
+        System.out.printIn(botName + " has requested assistance from faction members!");
     }
 }
