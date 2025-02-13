@@ -1,4 +1,5 @@
-// MCBotClientAI ALPHA VERSION 1.5.2
+// MCBotClientAI ALPHA VERSION 1.6.0
+// Enhanced AI decision-making for HBM Nuclear Tech Mod
 // Designed by DerKaiser2023
 // Created Feb 11 2025
 import com.github.steveice10.mc.auth.data.GameProfile;
@@ -16,15 +17,14 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.*;
-import java.util.Random;
 
 public class BotClient {
     public static void main(String[] args) {
-        int numBots = 5; // Number of AI players to create
+        int numBots = 5;
         List<Client> bots = new ArrayList<>();
 
         for (int i = 1; i <= numBots; i++) {
-            String botName = "AI_Bot" + i; // Unique name for each bot
+            String botName = "AI_Bot" + i;
             startBot(botName, bots);
         }
     }
@@ -55,23 +55,8 @@ public class BotClient {
         });
 
         new Thread(() -> {
-            Random rand = new Random();
             while (true) {
-                if (shouldAdvanceToHBM(client, botName)) {
-                    advanceToHBM(client, botName);
-                } else {
-                    int decision = rand.nextInt(8);
-                    switch (decision) {
-                        case 0 -> explore(client, botName);
-                        case 1 -> fightEnemies(client, botName);
-                        case 2 -> gatherResources(client, botName);
-                        case 3 -> tradeWithNPCs(client, botName);
-                        case 4 -> buildInfrastructure(client, botName);
-                        case 5 -> craftHBMItem(client, botName);
-                        case 6 -> interactWithMods(client, botName);
-                        case 7 -> handleGalacticraft(client, botName);
-                    }
-                }
+                makeStrategicDecision(client, botName);
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
@@ -85,63 +70,68 @@ public class BotClient {
         balanceAIDistribution(client, botName);
     }
 
-    private static String[] findServerOrLAN() {
-        String serverIP = "localhost";
-        int serverPort = 25565;
-        
-        if (isServerOnline(serverIP, serverPort)) {
-            return new String[]{serverIP, String.valueOf(serverPort)};
+    private static void makeStrategicDecision(Client client, String botName) {
+        if (shouldAdvanceToHBM(client, botName)) {
+            advanceToHBM(client, botName);
         } else {
-            return findLANWorld();
-        }
-    }
-
-    private static boolean isServerOnline(String ip, int port) {
-        try {
-            InetAddress server = InetAddress.getByName(ip);
-            return server.isReachable(2000);
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    private static String[] findLANWorld() {
-        try (MulticastSocket socket = new MulticastSocket(4445)) {
-            socket.setSoTimeout(5000);
-            socket.joinGroup(InetAddress.getByName("224.0.2.60"));
-            byte[] buffer = new byte[1024];
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            socket.receive(packet);
-
-            String message = new String(packet.getData(), 0, packet.getLength());
-            if (message.contains("[MOTD]") && message.contains("[AD]")) {
-                String ip = packet.getAddress().getHostAddress();
-                String port = message.split(":")[1].trim();
-                return new String[]{ip, port};
+            if (hasSufficientResources(botName)) {
+                if (isUnderThreat(botName)) {
+                    developMissiles(botName);
+                } else {
+                    manageNuclearPower(botName);
+                }
+            } else {
+                gatherResources(client, botName);
             }
-        } catch (IOException e) {
-            System.out.println("No LAN worlds detected.");
         }
-        return null;
     }
 
     private static boolean shouldAdvanceToHBM(Client client, String botName) {
-        // Logic to determine if AI is ready to advance to HBM mechanics
-        return false; // Placeholder logic
+        return hasSufficientResources(botName) && hasInfrastructureReady(botName) && hasEnergySupply(botName);
+    }
+
+    private static boolean hasSufficientResources(String botName) {
+        // Placeholder for resource check logic
+        return true;
+    }
+
+    private static boolean hasInfrastructureReady(String botName) {
+        // Placeholder for checking radiation shielding, storage, and facilities
+        return true;
+    }
+
+    private static boolean hasEnergySupply(String botName) {
+        // Placeholder for power availability check
+        return true;
+    }
+
+    private static boolean isUnderThreat(String botName) {
+        // Placeholder for detecting enemy AI or players
+        return false;
     }
 
     private static void advanceToHBM(Client client, String botName) {
-        System.out.println(botName + " is advancing to HBM technology.");
-        // Implement HBM advancement logic
+        System.out.println(botName + " is advancing to HBM nuclear technology.");
+        // Implement safe nuclear tech advancement logic
     }
 
-    private static void buildInfrastructure(Client client, String botName) {
-        System.out.println(botName + " is building infrastructure.");
-        // Implement AI's base-building logic
+    private static void developMissiles(String botName) {
+        System.out.println(botName + " is focusing on missile development for defense and warfare.");
+        // Implement missile development logic
+    }
+
+    private static void manageNuclearPower(String botName) {
+        System.out.println(botName + " is setting up nuclear power generation and resource processing.");
+        // Implement nuclear reactor management logic
+    }
+
+    private static void gatherResources(Client client, String botName) {
+        System.out.println(botName + " is gathering necessary resources for HBM technology.");
+        // Implement resource gathering logic
     }
 
     private static void balanceAIDistribution(Client client, String botName) {
-        System.out.println(botName + " is balancing AI distribution for even faction growth.");
-        // Implement AI balancing logic to form separate societies
+        System.out.println(botName + " is balancing AI distribution for separate faction growth.");
+        // Implement AI faction balancing logic
     }
 }
