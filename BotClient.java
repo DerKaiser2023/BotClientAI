@@ -57,15 +57,20 @@ public class BotClient {
         new Thread(() -> {
             Random rand = new Random();
             while (true) {
-                int decision = rand.nextInt(7);
-                switch (decision) {
-                    case 0 -> explore(client, botName);
-                    case 1 -> fightEnemies(client, botName);
-                    case 2 -> gatherResources(client, botName);
-                    case 3 -> tradeWithNPCs(client, botName);
-                    case 4 -> craftHBMItem(client, botName);
-                    case 5 -> interactWithMods(client, botName);
-                    case 6 -> handleGalacticraft(client, botName);
+                if (shouldAdvanceToHBM(client, botName)) {
+                    advanceToHBM(client, botName);
+                } else {
+                    int decision = rand.nextInt(8);
+                    switch (decision) {
+                        case 0 -> explore(client, botName);
+                        case 1 -> fightEnemies(client, botName);
+                        case 2 -> gatherResources(client, botName);
+                        case 3 -> tradeWithNPCs(client, botName);
+                        case 4 -> buildInfrastructure(client, botName);
+                        case 5 -> craftHBMItem(client, botName);
+                        case 6 -> interactWithMods(client, botName);
+                        case 7 -> handleGalacticraft(client, botName);
+                    }
                 }
                 try {
                     Thread.sleep(5000);
@@ -77,6 +82,7 @@ public class BotClient {
 
         client.getSession().connect();
         System.out.println(botName + " has joined the server at " + serverIP + ":" + serverPort);
+        balanceAIDistribution(client, botName);
     }
 
     private static String[] findServerOrLAN() {
@@ -117,5 +123,25 @@ public class BotClient {
             System.out.println("No LAN worlds detected.");
         }
         return null;
+    }
+
+    private static boolean shouldAdvanceToHBM(Client client, String botName) {
+        // Logic to determine if AI is ready to advance to HBM mechanics
+        return false; // Placeholder logic
+    }
+
+    private static void advanceToHBM(Client client, String botName) {
+        System.out.println(botName + " is advancing to HBM technology.");
+        // Implement HBM advancement logic
+    }
+
+    private static void buildInfrastructure(Client client, String botName) {
+        System.out.println(botName + " is building infrastructure.");
+        // Implement AI's base-building logic
+    }
+
+    private static void balanceAIDistribution(Client client, String botName) {
+        System.out.println(botName + " is balancing AI distribution for even faction growth.");
+        // Implement AI balancing logic to form separate societies
     }
 }
