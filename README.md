@@ -17,6 +17,7 @@ This project is an autonomous AI bot for Minecraft 1.7.10, utilizing **MCProtoco
 - **Java 8 or higher**
 - **MCProtocolLib**
 - **Tyrants and Plebieans REVIVED** install it at *insert modpack url here*
+- **If you run Minecraft on a lower end computer a scaled down version with the support for the mods in BotClientAI is in the works**
 
 ## Installation
 1. **Clone the repository:**
